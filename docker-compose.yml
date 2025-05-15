@@ -1,0 +1,7 @@
+services:
+  im-Backend:
+    image: ghcr.io/deepuprajapat/im-Backend:${IMAGE_TAG}
+    container_name: im-Backene
+    ports:
+      - "8181:8181"
+    restart: always

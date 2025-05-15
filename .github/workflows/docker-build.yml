@@ -1,23 +1,59 @@
-name: Build and Push Docker Image.
+name: Build, Push and Deploy Docker Image
 
 on:
   push:
     branches:
       - main
+      - master
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
-      - name: Build & push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v6
+
+      - name: Set up Docker image tag
+        run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u deepuprajapat --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile \
+            -t ghcr.io/deepuprajapat/IM-Backend-:${{ env.TAG }} \
+            -t ghcr.io/deepuprajapat/IM-Backend-:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/deepuprajapat/IM-Backend-:${{ env.TAG }}
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
         with:
-          image: invest/backend
-          tags: ${{ github.sha }}, latest
-          registry: registry.virtualintelligence.co.in
-          dockerfile: dockerfile
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            IMAGE_TAG=${{ env.TAG }}
+            echo "Deploying IM Backend with image tag: $IMAGE_TAG"
+
+            # Login to GHCR on EC2
+            echo "${{ secrets.GHCR_PAT }}" | sudo docker login ghcr.io -u deepuprajapat --password-stdin
+
+            # Navigate to project directory
+            cd ~/IM-Backend- || exit 1
+
+            # Pull the new Docker image
+            sudo docker pull ghcr.io/deepuprajapat/IM-Backend-:$IMAGE_TAG
+
+            # Create .env file with tag
+            echo "IMAGE_TAG=$IMAGE_TAG" > .env
+
+            # Stop previous containers
+            sudo docker compose down
+
+            # Recreate containers with latest image
+            sudo docker compose up -d --pull always --force-recreate
