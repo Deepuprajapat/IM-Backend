@@ -27,7 +27,7 @@ COPY --from=builder /app/target/invest-0.0.1-SNAPSHOT.war .
 #/app.war
 
 # Expose the port that the application runs on
-EXPOSE 8080
+EXPOSE 8181
 
 # Command to run the application
 CMD ["java", "-jar", "invest-0.0.1-SNAPSHOT.war"]
