@@ -47,12 +47,12 @@ jobs:
 
             # Create .env file with AWS secrets
             cat <<EOF > .env
-IMAGE_TAG=$IMAGE_TAG
-AWSACCESSKEY=${{ secrets.AWSACCESSKEY }}
-AWSSECRETKEY=${{ secrets.AWSSECRETKEY }}
-AWSREGION=${{ secrets.AWSREGION }}
-AWSBUCKET=${{ secrets.AWSBUCKET }}
-EOF
+            IMAGE_TAG=$IMAGE_TAG
+            AWSACCESSKEY=${{ secrets.AWSACCESSKEY }}
+            AWSSECRETKEY=${{ secrets.AWSSECRETKEY }}
+            AWSREGION=${{ secrets.AWSREGION }}
+            AWSBUCKET=${{ secrets.AWSBUCKET }} 
+            EOF
 
             # Redeploy using Docker Compose
             sudo docker compose down
