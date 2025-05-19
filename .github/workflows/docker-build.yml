@@ -23,10 +23,13 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+            --build-arg AWSACCESSKEY=${{ secrets.AWSACCESSKEY }} \
+            --build-arg AWSSECRETKEY=${{ secrets.AWSSECRETKEY }} \
+            --build-arg AWSREGION=${{ secrets.AWSREGION }} \
+            --build-arg AWSBUCKET=${{ secrets.AWSBUCKET }} \
             -f Dockerfile \
             -t ghcr.io/deepuprajapat/im-backend:${{ env.TAG }} \
-            -t ghcr.io/deepuprajapat/im-backend:latest \
-            .
+            -t ghcr.io/deepuprajapat/im-backend:latest .
 
       - name: Push Docker image (tag + latest)
         run: |
@@ -45,16 +48,9 @@ jobs:
 
             cd ~/IM-Server/IM-Backend || exit 1
 
-            # Create .env file with AWS secrets
-            cat <<EOF > .env
-            IMAGE_TAG=$IMAGE_TAG
-            AWSACCESSKEY=${{ secrets.AWSACCESSKEY }}
-            AWSSECRETKEY=${{ secrets.AWSSECRETKEY }}
-            AWSREGION=${{ secrets.AWSREGION }}
-            AWSBUCKET=${{ secrets.AWSBUCKET }} 
-            EOF
+            sudo docker pull ghcr.io/deepuprajapat/im-backend:$IMAGE_TAG
 
-            # Redeploy using Docker Compose
+            echo "IMAGE_TAG=$IMAGE_TAG" > .env
+
             sudo docker compose down
             sudo docker compose up -d --pull always --force-recreate
-
