@@ -1,10 +1,5 @@
 package com.realestate.invest.Utils;
 
-public class SecretUtils 
-{
-    /*
-     * AWS Credentials
-    */
     public static String APIURL = "http://servermsg.com/api/SmsApi/SendSingleApi";
     public static String USERID = "Invest";
     public static String PASSWORD = "alva1032AL";
