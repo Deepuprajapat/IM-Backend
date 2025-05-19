@@ -1,5 +1,11 @@
 package com.realestate.invest.Utils;
 
+public class SecretUtils 
+{
+    /*
+     * AWS Credentials
+    */
+
     public static String APIURL = "http://servermsg.com/api/SmsApi/SendSingleApi";
     public static String USERID = "Invest";
     public static String PASSWORD = "alva1032AL";
@@ -8,3 +14,5 @@ package com.realestate.invest.Utils;
     "your%20mobile%20number.%20For%20more%20info%20visit%20investmango.com";
     public static String ENTITYID = "1701158219615298561";
     public static String TEMPLATEID = "1707165293637284915";
+    
+}
