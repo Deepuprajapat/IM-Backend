@@ -5,6 +5,11 @@ public class SecretUtils
     /*
      * AWS Credentials
     */
+    public static final String AWSACCESSKEY = System.getenv("AWSACCESSKEY");
+    public static final String AWSSECRETKEY = System.getenv("AWSSECRETKEY");
+    public static final String AWSREGION = System.getenv("AWSREGION");
+    public static final String AWSBUCKET = System.getenv("AWSBUCKET");
+
 
     public static String APIURL = "http://servermsg.com/api/SmsApi/SendSingleApi";
     public static String USERID = "Invest";
