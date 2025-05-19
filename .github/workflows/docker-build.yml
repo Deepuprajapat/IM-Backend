@@ -23,15 +23,12 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg AWSACCESSKEY=${{ secrets.AWSACCESSKEY }} \
-            --build-arg AWSSECRETKEY=${{ secrets.AWSSECRETKEY }} \
             -f Dockerfile \
-            -t ghcr.io/deepuprajapat/im-backend:${{ env.TAG }} .
-
+            -t ghcr.io/deepuprajapat/im-backend:${{ env.TAG }} \
+            -t ghcr.io/deepuprajapat/im-backend:latest .
       - name: Push Docker image
         run: |
           docker push ghcr.io/deepuprajapat/im-backend:${{ env.TAG }}
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -44,13 +41,12 @@ jobs:
             # Login to GHCR on EC2
             echo "${{ secrets.GHCR_PAT }}" | sudo docker login ghcr.io -u deepuprajapat --password-stdin
             # Navigate to project directory
-            cd ~/IM-Backend || exit 1
+            cd ~/IM-Server/IM-Backend || exit 1
             # Pull the new Docker image
             sudo docker pull ghcr.io/deepuprajapat/im-backend:$IMAGE_TAG
-            # Create .env file with tag
+            # Update .env file with the new image tag
             echo "IMAGE_TAG=$IMAGE_TAG" > .env
-            # Stop previous containers
+            # Stop existing containers
             sudo docker compose down
-            # Recreate containers with latest image
+            # Start containers with the latest image
             sudo docker compose up -d --pull always --force-recreate
-
