@@ -1,33 +1,45 @@
 # Use official Maven image as the base image
 FROM maven:3.8.4-openjdk-17 AS builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the Maven project file to the working directory
 COPY pom.xml .
-
-# Copy the entire source code to the working directory
 COPY src ./src
 
-# Download dependencies
-RUN mvn dependency:go-offline
+# Accept build-time secrets
+ARG AWSACCESSKEY
+ARG AWSSECRETKEY
+ARG AWSREGION
+ARG AWSBUCKET
 
-# Build the application
+# Set environment variables for Java
+ENV AWSACCESSKEY=$AWSACCESSKEY
+ENV AWSSECRETKEY=$AWSSECRETKEY
+ENV AWSREGION=$AWSREGION
+ENV AWSBUCKET=$AWSBUCKET
+
+RUN mvn dependency:go-offline
 RUN mvn clean package -DskipTests
 
-# Use OpenJDK as the base image for the final image
+# Final image
 FROM openjdk:17-jdk-alpine
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the compiled application from the builder stage to the final image
-COPY --from=builder /app/target/invest-0.0.1-SNAPSHOT.war .  
-#/app.war
+COPY --from=builder /app/target/invest-0.0.1-SNAPSHOT.war .
 
-# Expose the port that the application runs on
+# Pass env vars to runtime container
+ARG AWSACCESSKEY
+ARG AWSSECRETKEY
+ARG AWSREGION
+ARG AWSBUCKET
+
+ENV AWSACCESSKEY=$AWSACCESSKEY
+ENV AWSSECRETKEY=$AWSSECRETKEY
+ENV AWSREGION=$AWSREGION
+ENV AWSBUCKET=$AWSBUCKET
+
 EXPOSE 8181
 
-# Command to run the application
 CMD ["java", "-jar", "invest-0.0.1-SNAPSHOT.war"]
+
