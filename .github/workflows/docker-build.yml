@@ -45,11 +45,14 @@ jobs:
 
             cd ~/IM-Server/IM-Backend || exit 1
 
-            # Pull latest image
-            sudo docker pull ghcr.io/deepuprajapat/im-backend:$IMAGE_TAG
-
-            # Update env file
-            echo "IMAGE_TAG=$IMAGE_TAG" > .env
+            # Create .env file with AWS secrets
+            cat <<EOF > .env
+IMAGE_TAG=$IMAGE_TAG
+AWSACCESSKEY=${{ secrets.AWSACCESSKEY }}
+AWSSECRETKEY=${{ secrets.AWSSECRETKEY }}
+AWSREGION=${{ secrets.AWSREGION }}
+AWSBUCKET=${{ secrets.AWSBUCKET }}
+EOF
 
             # Redeploy using Docker Compose
             sudo docker compose down
